@@ -178,3 +178,29 @@ input:focus, select:focus, textarea:focus {
   text-align: center;
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --amber: #f59e0b;
+    --amber-dark: #fbbf24;
+    --amber-soft: #451a03;
+    --ink: #f3f4f6;
+    --muted: #9ca3af;
+    --line: #1f2937;
+    --bg: #0b1220;
+    --card: #111827;
+    --red: #f87171;
+    --orange: #fb923c;
+    --yellow: #facc15;
+    --green: #4ade80;
+  }
+  input, select, textarea { background: #0b1220; }
+  .btn { background: #1f2937; }
+  .st-expired { background: #450a0a; }
+  .st-critical { background: #431407; }
+  .st-warning { background: #451a03; }
+  .st-ok { background: #052e16; }
+  .st-unknown { background: #1f2937; }
+  .add-cert { background: #1f2937; border-color: #b45309; }
+  .add-cert .card-title { border-color: #b45309; }
+}
