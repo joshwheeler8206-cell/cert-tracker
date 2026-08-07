@@ -1,4 +1,4 @@
-const CACHE = 'cert-tracker-v4';
+const CACHE = 'cert-tracker-v5';
 const ASSETS = [
   './',
   './index.html',
