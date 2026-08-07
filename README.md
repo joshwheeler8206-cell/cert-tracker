@@ -1,4 +1,5 @@
 # Cert & Expiry Tracker
+<p align="center"><img src="icons/logo-tile.png" alt="U.S. AutoForce" width="340"></p>
 U.S. AutoForce driver certification expiration tracking. Works offline as an installable PWA.
 
 ## Install
