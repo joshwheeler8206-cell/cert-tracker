@@ -75,6 +75,101 @@ async function initStorage() {
   }
 }
 
+/* ============================== Driver Roster (shared) ============================== */
+// usaf_roster_db / usaf_roster_v1 — the SAME IndexedDB all six AutoForce apps read,
+// so a driver profile added in the Driver Hub autofills here too.
+const ROSTER_DB = 'usaf_roster_db';
+const ROSTER_KEY = 'usaf_roster_v1';
+let roster = [];
+
+function rosterOpen() {
+  return new Promise((resolve, reject) => {
+    try {
+      const req = indexedDB.open(ROSTER_DB, 1);
+      req.onupgradeneeded = () => req.result.createObjectStore('kv');
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    } catch (e) { reject(e); }
+  });
+}
+
+async function rosterGet() {
+  try {
+    const db = await rosterOpen();
+    return await new Promise((resolve) => {
+      const req = db.transaction('kv', 'readonly').objectStore('kv').get(ROSTER_KEY);
+      req.onsuccess = () => resolve(req.result || []);
+      req.onerror = () => resolve([]);
+    });
+  } catch (e) { return []; }
+}
+
+function rosterPut(list) {
+  const snapshot = JSON.parse(JSON.stringify(list));
+  if (canIdb) {
+    return rosterOpen().then((db) => new Promise((resolve) => {
+      const tx = db.transaction('kv', 'readwrite');
+      tx.objectStore('kv').put(snapshot, ROSTER_KEY);
+      tx.oncomplete = () => resolve(true);
+      tx.onerror = () => resolve(false);
+    })).catch(() => {});
+  }
+  try { localStorage.setItem(ROSTER_DB + ':' + ROSTER_KEY, JSON.stringify(snapshot)); } catch (e) {}
+  return Promise.resolve();
+}
+
+function rosterFind(name) {
+  const n = String(name || '').trim().toLowerCase();
+  return roster.find((r) => String(r.name || '').trim().toLowerCase() === n) || null;
+}
+
+function rosterUpsert(entry) {
+  const name = String((entry && entry.name) || '').trim();
+  if (!name) return;
+  const existing = rosterFind(name);
+  if (existing) {
+    for (const k of ['license', 'warehouse', 'hireDate', 'trainer']) {
+      const v = String((entry && entry[k]) || '').trim();
+      if (v) existing[k] = v;
+    }
+  } else {
+    roster.push({
+      name,
+      license: String((entry && entry.license) || '').trim(),
+      warehouse: String((entry && entry.warehouse) || '').trim(),
+      hireDate: String((entry && entry.hireDate) || '').trim(),
+      trainer: String((entry && entry.trainer) || '').trim(),
+    });
+  }
+  rosterPut(roster);
+}
+
+function ensureRosterDatalist() {
+  let dl = document.getElementById('roster-names');
+  if (!dl) {
+    dl = el('datalist', { id: 'roster-names' });
+    document.body.appendChild(dl);
+  }
+  dl.innerHTML = '';
+  for (const r of roster) dl.appendChild(el('option', { value: r.name }));
+  return dl;
+}
+
+function rosterField(labelText, id, value, fields, extra = {}) {
+  const input = el('input', { type: 'text', id, value, list: 'roster-names', autocomplete: 'off', ...extra });
+  const fill = () => {
+    const r = rosterFind(input.value);
+    if (!r) return;
+    for (const [fid, prop] of Object.entries(fields)) {
+      const n = document.getElementById(fid);
+      if (n && !n.value) n.value = r[prop] || '';
+    }
+  };
+  input.addEventListener('input', fill);
+  input.addEventListener('change', fill);
+  return el('label', { class: 'field' }, [el('span', { class: 'field-label' }, [labelText]), input]);
+}
+
 /* ============================== Model helpers ============================== */
 
 function newDriver() {
@@ -275,14 +370,12 @@ function renderDriver() {
     el('button', { class: 'btn primary small', onclick: () => openPrint(d) }, ['Print / PDF']),
   ]));
 
+  ensureRosterDatalist();
   view.appendChild(el('div', { class: 'card' }, [
+    rosterField('Driver Name', 'driverName', d.name, { driverId: 'license' }, { placeholder: 'Full name', oninput: (e) => { d.name = e.target.value; persist(); if (d.driverId) rosterUpsert({ name: d.name, license: d.driverId }); } }),
     el('div', { class: 'field' }, [
-      el('span', { class: 'field-label' }, ['Driver Name']),
-      el('input', { type: 'text', id: 'driverName', placeholder: 'Full name', value: d.name, oninput: (e) => { d.name = e.target.value; persist(); } }),
-    ]),
-    el('div', { class: 'field' }, [
-      el('span', { class: 'field-label' }, ['Driver ID#']),
-      el('input', { type: 'text', id: 'driverId', placeholder: 'e.g. 4412', value: d.driverId, oninput: (e) => { d.driverId = e.target.value; persist(); } }),
+      el('span', { class: 'field-label' }, ['Driver ID# / Lic.#']),
+      el('input', { type: 'text', id: 'driverId', placeholder: 'e.g. 4412', value: d.driverId, oninput: (e) => { d.driverId = e.target.value; persist(); if (d.name) rosterUpsert({ name: d.name, license: d.driverId }); } }),
     ]),
     el('button', { class: 'btn ghost small danger', onclick: () => deleteDriver(d.id) }, ['Delete driver']),
   ]));
