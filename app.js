@@ -73,6 +73,9 @@ async function initStorage() {
     const legacy = loadLegacy();
     if (legacy.length) { drivers = legacy; await persist(); }
   }
+  // Load the shared roster. Without this `roster` stays [] and any rosterUpsert
+  // would overwrite the whole shared roster with a partial record.
+  roster = await rosterGet();
 }
 
 /* ============================== Driver Roster (shared) ============================== */
@@ -121,6 +124,14 @@ function rosterPut(list) {
 function rosterFind(name) {
   const n = String(name || '').trim().toLowerCase();
   return roster.find((r) => String(r.name || '').trim().toLowerCase() === n) || null;
+}
+
+// Typing fires oninput per keystroke. Upserting on each one writes partial
+// names like "A" / "Ali" as their own roster rows, so debounce it.
+let _rosterQueue = null;
+function queueRosterUpsert(d) {
+  clearTimeout(_rosterQueue);
+  _rosterQueue = setTimeout(() => rosterUpsert({ name: d.name, license: d.driverId }), 700);
 }
 
 function rosterUpsert(entry) {
@@ -372,10 +383,10 @@ function renderDriver() {
 
   ensureRosterDatalist();
   view.appendChild(el('div', { class: 'card' }, [
-    rosterField('Driver Name', 'driverName', d.name, { driverId: 'license' }, { placeholder: 'Full name', oninput: (e) => { d.name = e.target.value; persist(); if (d.driverId) rosterUpsert({ name: d.name, license: d.driverId }); } }),
+    rosterField('Driver Name', 'driverName', d.name, { driverId: 'license' }, { placeholder: 'Full name', oninput: (e) => { d.name = e.target.value; persist(); if (d.driverId) queueRosterUpsert(d); } }),
     el('div', { class: 'field' }, [
       el('span', { class: 'field-label' }, ['Driver ID# / Lic.#']),
-      el('input', { type: 'text', id: 'driverId', placeholder: 'e.g. 4412', value: d.driverId, oninput: (e) => { d.driverId = e.target.value; persist(); if (d.name) rosterUpsert({ name: d.name, license: d.driverId }); } }),
+      el('input', { type: 'text', id: 'driverId', placeholder: 'e.g. 4412', value: d.driverId, oninput: (e) => { d.driverId = e.target.value; persist(); if (d.name) queueRosterUpsert(d); } }),
     ]),
     el('button', { class: 'btn ghost small danger', onclick: () => deleteDriver(d.id) }, ['Delete driver']),
   ]));
