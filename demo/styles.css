@@ -126,6 +126,24 @@ body { padding-bottom: calc(28px + var(--safe-bottom)); }
 /* forms */
 .field { display: block; margin-bottom: 10px; }
 .field-label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 4px; }
+
+/* ---------- Roster name pull-down + roster info summary ---------- */
+.roster-pick { margin-top: 6px; }
+
+/* Read-only summary of what the shared roster knows about the chosen driver —
+   hire date, licence #, licence / med-card expirations, warehouse, trainer. */
+.roster-info {
+  margin-top: 7px; padding: 7px 9px; border: 1px dashed var(--line); border-radius: 8px;
+  background: rgba(217, 119, 6, .05); font-size: 11.5px; color: var(--muted);
+  line-height: 1.5; overflow-wrap: anywhere;
+}
+.roster-info b { color: var(--ink); }
+
+/* Month / Day / Year dropdowns — work on every device, unlike the native
+   calendar's year control on some phones and installed web apps. */
+.dt-row { display: flex; gap: 6px; }
+.dt-row select { flex: 1 1 0; min-width: 0; width: auto; padding-left: 8px; padding-right: 8px; }
+.dt-row .dt-y { flex: 1.2 1 0; }
 input, select, textarea {
   width: 100%;
   font: inherit;
@@ -207,3 +225,16 @@ input:focus, select:focus, textarea:focus {
   .add-cert { background: #1f2937; border-color: #b45309; }
   .add-cert .card-title { border-color: #b45309; }
 }
+
+/* ---------- Auto-backup toggle ---------- */
+.ab-toggle {
+  display: flex; align-items: flex-start; gap: 10px;
+  margin-top: 12px; padding: 10px 12px;
+  border: 1.5px solid var(--line, #e3e6ef); border-radius: 10px;
+  background: rgba(217, 119, 6, .06);
+  cursor: pointer;
+}
+.ab-ck { width: 22px; height: 22px; flex: none; margin-top: 1px; }
+.ab-txt { display: flex; flex-direction: column; gap: 2px; }
+.ab-title { font-size: 13px; font-weight: 700; }
+.ab-txt .sub { font-size: 12px; opacity: .75; margin: 0; }

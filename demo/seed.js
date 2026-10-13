@@ -88,35 +88,50 @@ var __SEED_DBS__ = {
 "license": "DRV-1024",
 "warehouse": "OKC North",
 "hireDate": "2021-09-10",
-"trainer": "J. Kowalski"
+"trainer": "J. Kowalski",
+"phone": "405-555-0142",
+"licenseExp": "2029-07-04",
+"medCardExp": "2031-02-28"
 },
 {
 "name": "Alicia Santos",
 "license": "DRV-1087",
 "warehouse": "OKC North",
 "hireDate": "2022-08-15",
-"trainer": "S. Nakamura"
+"trainer": "S. Nakamura",
+"phone": "405-555-0188",
+"licenseExp": "2028-11-12",
+"medCardExp": "2027-01-30"
 },
 {
 "name": "Darrell Whitfield",
 "license": "DRV-1102",
 "warehouse": "Tulsa Yard",
 "hireDate": "2019-04-02",
-"trainer": "T. Beaumont"
+"trainer": "T. Beaumont",
+"phone": "918-555-0110",
+"licenseExp": "2030-03-19",
+"medCardExp": "2026-03-12"
 },
 {
 "name": "Kyle Osei",
 "license": "TRN-2001",
 "warehouse": "OKC North",
 "hireDate": "2026-05-01",
-"trainer": "B. Tran"
+"trainer": "B. Tran",
+"phone": "405-555-0173",
+"licenseExp": "",
+"medCardExp": ""
 },
 {
 "name": "Rebecca Hall",
 "license": "TRN-2007",
 "warehouse": "Dallas Metro",
 "hireDate": "2026-07-06",
-"trainer": "S. Nakamura"
+"trainer": "S. Nakamura",
+"phone": "214-555-0165",
+"licenseExp": "",
+"medCardExp": ""
 }
 ]
 }
